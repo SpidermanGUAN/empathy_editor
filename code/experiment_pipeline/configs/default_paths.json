@@ -1,0 +1,32 @@
+{
+  "datasets": {
+    "soulchat_repo": "Spiderman01/soulchat_split_raw",
+    "empathetic_dialogues_repo": "Estwld/empathetic_dialogues_llm",
+    "tide_repo": "yenopoya/TIDE"
+  },
+  "models": {
+    "raw_backbone": "Qwen/Qwen2.5-7B-Instruct",
+    "agent1_base": "unsloth/Qwen3.5-0.8B",
+    "agent1_finetuned": "Spiderman01/finetuned_Qwen_35_08B_empathy",
+    "agent2_fact": "unsloth/Qwen3.5-0.8B",
+    "agent3_fusion": "unsloth/Qwen3.5-0.8B",
+    "soulchat_sft_baseline": "outputs/qwen25_7b_soulchat"
+  },
+  "paths": {
+    "processed_data": "data/processed",
+    "agent1_sft": "data/agent1_sft",
+    "raw_outputs": "outputs/raw",
+    "agent_outputs": "outputs/agent",
+    "automatic_results": "results/automatic",
+    "human_eval": "human_eval",
+    "human_results": "results/human",
+    "latex_tables": "results/tables"
+  },
+  "human_eval": {
+    "recommended_tide_items": 150,
+    "recommended_soulchat_items": 150,
+    "recommended_ed_items": 150,
+    "annotators": 3
+  }
+}
+

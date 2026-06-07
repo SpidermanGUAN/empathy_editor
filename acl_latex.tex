@@ -1,0 +1,456 @@
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[review]{acl}
+\usepackage[table]{xcolor}
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{graphicx} % If you use figures
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+
+\usepackage[most]{tcolorbox}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Define styles
+\definecolor{promptbg}{RGB}{248,248,248}
+\definecolor{promptframe}{RGB}{200,200,200}
+\definecolor{systemcolor}{RGB}{0,90,150}
+\definecolor{usercolor}{RGB}{0,120,80}
+
+\newtcolorbox{promptbox}[2][]{
+    enhanced,
+    colback=promptbg,
+    colframe=promptframe,
+    fonttitle=\bfseries\sffamily,
+    title={#2},
+    boxrule=0.5pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    breakable,
+    #1
+}
+
+\newcommand{\systemprompt}[1]{%
+    \textbf{\textcolor{systemcolor}{[System]}} #1%
+}
+
+\newcommand{\userprompt}[1]{%
+    \textbf{\textcolor{usercolor}{[User]}} #1%
+}
+
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{EmpathyEditor}
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a separate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+
+
+\author{
+  \textbf{Shaowei Guan\textsuperscript{1}},
+  \textbf{Yu Zhai\textsuperscript{2}},
+  \textbf{Hin Chi Kwok\textsuperscript{1}},
+  \textbf{Jiawei Du\textsuperscript{3}},
+  \textbf{Xinyu Feng\textsuperscript{1}},\\
+  \textbf{Jing Li\textsuperscript{4}},
+  \textbf{Harry Qin\textsuperscript{1}},
+  \textbf{Vivian Hui\textsuperscript{1}},
+\\
+%  \textbf{Fifth Author\textsuperscript{1,2}},
+%  \textbf{Sixth Author\textsuperscript{1}},
+%  \textbf{Seventh Author\textsuperscript{1}},
+%  \textbf{Eighth Author \textsuperscript{1,2,3,4}},
+%\\
+%  \textbf{Ninth Author\textsuperscript{1}},
+%  \textbf{Tenth Author\textsuperscript{1}},
+%  \textbf{Eleventh E. Author\textsuperscript{1,2,3,4,5}},
+%  \textbf{Twelfth Author\textsuperscript{1}},
+%\\
+%  \textbf{Thirteenth Author\textsuperscript{3}},
+%  \textbf{Fourteenth F. Author\textsuperscript{2,4}},
+%  \textbf{Fifteenth Author\textsuperscript{1}},
+%  \textbf{Sixteenth Author\textsuperscript{1}},
+%\\
+%  \textbf{Seventeenth S. Author\textsuperscript{4,5}},
+%  \textbf{Eighteenth Author\textsuperscript{3,4}},
+%  \textbf{Nineteenth N. Author\textsuperscript{2,5}},
+%  \textbf{Twentieth Author\textsuperscript{1}}
+%\\
+%\\
+  \textsuperscript{1}Centre for Smart Health, School of Nursing, The Hong Kong Polytechnic University, Hong Kong \\
+  \textsuperscript{2}Department of Language Science and Technology, The Hong Kong Polytechnic University, Hong Kong \\
+  \textsuperscript{3}Centre for Frontier AI Research, Agency for Science, Technology and Research, Singapore \\
+  \textsuperscript{4}Department of Computing, The Hong Kong Polytechnic University, Hong Kong
+%  \textsuperscript{5}Affiliation 5
+%\\
+%  \small{
+%    \textbf{Correspondence:} \href{mailto:email@domain}{email@domain}
+%  }
+}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Large language models are increasingly used in emotional support and mental-health-adjacent dialogue, yet their responses often remain generic, overly advisory, or insufficiently grounded in the user's evolving psychological context. Fine-tuning a full dialogue model on empathetic responses can improve affective tone, but it is costly to repeat for every domain model and may alter factual behavior that is important in high-stakes settings. We propose \textsc{EmpathyEditor}, a plug-and-play multi-agent response editor that improves the empathy of an existing system response while preserving its factual content. The framework uses a small profile agent to maintain a Theory-of-Mind-inspired user profile, a fact extraction agent to identify content that must be preserved, and a fusion agent to rewrite the raw response in a more personalized and empathetic manner. We outline a multilingual evaluation protocol on TIDE, EmpatheticDialogues, and SoulChat, covering automatic empathy/factuality metrics, component ablations, and blinded human evaluation.
+\end{abstract}
+
+\section{Introduction}
+
+Large language models (LLMs) are increasingly capable of participating in emotional support conversations, including settings adjacent to mental health support. In these settings, factual adequacy alone is not enough: users often need responses that recognize their emotional state, respect their communication style, and provide support without sounding scripted or dismissive. At the same time, high-stakes support systems cannot simply trade factual reliability for warmer language.
+
+Prior work has improved empathetic dialogue through dataset construction and supervised fine-tuning, including EmpatheticDialogues \citep{rashkin2019towards}, SoulChat \citep{chen-etal-2023-soulchat}, and trauma-informed resources such as TIDE \citep{bn2025pursuit}. These approaches demonstrate that targeted training data can improve empathy, listening, and supportive reflection. However, full-model fine-tuning is not always practical when the base system is a domain-specific model whose factual behavior must be preserved. A hospital, counseling platform, or educational support service may already rely on a tuned backbone, retrieval pipeline, or safety policy; replacing that system with an empathy-tuned model can be expensive and risky.
+
+We study a complementary problem: given a factually useful but insufficiently empathetic response from an existing dialogue system, can a lightweight plug-and-play editor rewrite it to be more supportive while preserving factual content? This framing separates factual response generation from empathetic response editing. It also makes the evaluation stricter: a system must improve perceived empathy without adding unsupported claims, changing advice, or dropping important facts.
+
+We propose \textsc{EmpathyEditor}, a three-agent framework built from small language models. Agent 1 constructs and updates a Theory-of-Mind-inspired user profile containing the user's inferred emotional state, support strategy, language style, and contextual details. Agent 2 extracts factual assertions from the raw response that must be preserved. Agent 3 fuses the raw response, extracted facts, and user profile into the final edited response. The framework is designed for multi-turn use: the profile is carried across turns so later responses can reflect accumulated understanding rather than treating each message independently.
+
+Our contributions are:
+
+\begin{enumerate}
+    \item We formulate empathetic response editing as a plug-and-play task that explicitly optimizes both empathy improvement and factual preservation.
+    \item We introduce a small-model multi-agent architecture that separates user-profile inference, fact extraction, and profile-guided response fusion.
+    \item We propose a multilingual evaluation protocol spanning TIDE, EmpatheticDialogues, and SoulChat, including automatic metrics, human evaluation, and component ablations.
+    \item We provide a reproducible experimental pipeline for dataset preparation, model training, vLLM inference, ablation runs, and result-table generation.
+\end{enumerate}
+\section{Related Work}
+
+\paragraph{Theory of Mind (ToM)}
+Theory of Mind refers to the capacity to infer another person's mental states, including beliefs, emotions, intentions, and needs. For empathetic dialogue, this is useful because supportive responses require more than detecting surface sentiment: the system must infer why the user feels distressed, what kind of support may be acceptable, and how the user prefers to communicate. In our framework, ToM is operationalized as a compact, textual profile that is updated across turns.
+
+\paragraph{The development of Empathy in LLMs}
+Empathetic dialogue research has progressed from benchmark construction to fine-tuning and alignment. EmpatheticDialogues provides open-domain emotional situations and multi-turn conversations \citep{rashkin2019towards}. SoulChat extends this direction to large-scale Chinese multi-turn psychological support dialogue \citep{chen-etal-2023-soulchat}. TIDE focuses on trauma-informed PTSD support and provides clinically reviewed synthetic two-turn dialogues \citep{bn2025pursuit}. These resources are valuable, but most fine-tuning approaches modify the response model itself. \textsc{EmpathyEditor} instead edits the output of an existing model, which makes it easier to apply to backbones that already encode domain knowledge, retrieval behavior, or safety constraints.
+
+\begin{figure*}[t]
+  \centering
+  \fbox{\begin{minipage}{0.92\linewidth}
+  \centering
+  Raw response generator $\rightarrow$ Agent 1: ToM/profile update $\rightarrow$ Agent 2: factual assertion extraction $\rightarrow$ Agent 3: profile-guided fusion $\rightarrow$ empathetic fact-preserving response.
+  \end{minipage}}
+  \caption{Overview of \textsc{EmpathyEditor}. The framework edits an existing raw response rather than replacing the underlying dialogue model.}
+  \label{fig:workflow}
+\end{figure*}
+
+
+
+\section{Methodology}
+\label{sec:methodology}
+
+In this section, we present our multi-agent framework for empathetic response editing guided by dynamic user profiles. We first formalize the task and introduce the Theory of Mind (ToM) Map for multi-turn user understanding. We then detail the architecture and interaction of three specialized small language agents: the Empathy \& Profile Agent ($\mathcal{A}_{\text{prof}}$), the Fact Extraction Agent ($\mathcal{A}_{\text{fact}}$), and the Fusion Agent ($\mathcal{A}_{\text{fus}}$).
+
+\subsection{Problem Formulation and ToM Map}
+\label{subsec:problem_formulation}
+
+We consider a multi-turn conversational setting where a user interacts with a domain-specific dialogue system. At each turn $t$, the user provides an utterance $u_t$, and the system generates a factually accurate but potentially non-empathetic \textit{raw response} $r_t$. The goal of our framework is to rewrite $r_t$ into an empathetic response $\hat{y}_t$ that satisfies two objectives:
+\begin{enumerate}
+    \item \textbf{Empathy Alignment}: $\hat{y}_t$ should be perceived as genuinely empathetic and supportive, consistent with the user's emotional state and communication preferences inferred from the conversation history.
+    \item \textbf{Factual Preservation}: All factual information in $\hat{y}_t$ must be strictly entailed by $r_t$. 
+\end{enumerate}
+
+To achieve empathy alignment across turns, we maintain a \textit{User Profile} $\mathcal{P}_t$, which is a structured representation of the user's inferred psychological state, communication style, and relevant contextual information extracted from the dialogue history up to turn $t-1$. The profile is updated recursively based on the analysis of the latest conversational turn.
+
+Let $\mathcal{H}_t = \{(u_1, \hat{y}_1), (u_2, \hat{y}_2), \dots, (u_{t-1}, \hat{y}_{t-1})\}$ denote the dialogue history before turn $t$. The profile $\mathcal{P}_t$ is defined as a tuple:
+\begin{equation}
+    \mathcal{P}_t = (\mathcal{M}_t, \mathcal{S}_t, \mathcal{L}_t, \mathcal{C}_t)
+\end{equation}
+where:
+\begin{itemize}
+    \item $\mathcal{M}_t$ is the \textit{Theory of Mind (ToM) Map}: a cumulative summary of the user's emotional states, inferred needs, and cognitive patterns.
+    \item $\mathcal{S}_t$ is the \textit{Empathy Strategy}: a recommended approach for providing support (e.g., validation, normalization, reflective listening).
+    \item $\mathcal{L}_t$ is the \textit{Language Style}: preferences regarding tone, formality, and vocabulary derived from the user's own language use.
+    \item $\mathcal{C}_t$ is the \textit{Extracted Context}: key factual or situational details mentioned by the user that may inform empathetic responses (e.g., specific stressors, relationships).
+\end{itemize}
+
+The generation of $\hat{y}_t$ is thus conditioned on the current raw response $r_t$, the current user utterance $u_t$, and the user profile $\mathcal{P}_t$ (which encodes all historical understanding):
+\begin{equation}
+    \hat{y}_t = \text{Generate}(r_t, u_t, \mathcal{P}_t)
+\end{equation}
+
+\subsection{Multi-Agent Framework Overview}
+\label{subsec:framework_overview}
+
+Our framework comprises three specialized agents implemented as Qwen3.5-0.8B small language models, each dedicated to a sub-task. Figure~\ref{fig:architecture} illustrates the overall pipeline.
+
+\begin{figure}[htbp]
+\centering
+% Placeholder for architecture diagram
+\caption{Overview of the profile-guided multi-agent framework. Agent 1 analyzes dialogue history to update the user profile. Agent 2 extracts factual assertions from the raw response. Agent 3 fuses the raw response with the profile to generate an empathetic and factually accurate reply.}
+\label{fig:architecture}
+\end{figure}
+
+\subsubsection{Agent 1: Empathy \& Profile Agent}
+\label{subsec:agent_profile}
+
+The Empathy \& Profile Agent $\mathcal{A}_{\text{prof}}$ is the core component for user understanding. Given the dialogue history $\mathcal{H}_t$ and the current user utterance $u_t$, its task is to generate a structured analysis that updates the user profile $\mathcal{P}_t$. The agent operates in two stages: (1) teacher-student distillation for ToM reasoning and profile construction, and (2) supervised fine-tuning (SFT).
+
+\paragraph{Teacher-Student Distillation for Profile Construction}
+
+We first construct a distillation dataset $\mathcal{D}_{\text{prof}}$ using a large reasoning-capable LLM (GPT-5.4-mini) as the teacher. For each training instance consisting of dialogue history $\mathcal{H}$ and current utterance $u$, the teacher generates ToM Analysis $\tau$, Empathy Strategy $s$, Language Style $\ell$, and Extracted Context $\mathcal{C}_t$ introduced above.
+
+
+The teacher is prompted with a structured template that requires these four components to be output. Formally, the teacher generation is:
+\begin{equation}
+    (\tau, s, \ell, c) \sim P_{\text{teacher}}(\cdot \mid \mathcal{H}, u)
+\end{equation}
+
+\paragraph{Supervised Fine-Tuning}
+
+Using the distilled dataset $\mathcal{D}_{\text{prof}}$, we fine-tune the Qwen3.5-0.8B model to generate the four profile components sequentially (add all parameters here). Through this distillation, the small model learns to produce a comprehensive user profile from conversation history, which serves as the foundation for personalized empathetic editing.
+
+\paragraph{Profile Update Mechanism}
+
+During inference, the profile $\mathcal{P}_t$ is maintained as a running accumulation of the agent's outputs. For each new turn, we concatenate the newly generated components with the existing profile:
+\begin{equation}
+    \mathcal{P}_t = \text{Update}(\mathcal{P}_{t-1}, \tau_t, s_t, \ell_t, c_t)
+\end{equation}
+In practice, $\mathcal{P}_t$ is a textual summary that can be directly injected into the prompt of downstream agents. This design ensures that the user's psychological portrait evolves over time, enabling consistent and context-aware empathy.
+
+\subsubsection{Agent 2: Fact Extraction Agent}
+\label{subsec:agent_fact}
+
+The Fact Extraction Agent $\mathcal{A}_{\text{fact}}$ is designed to extract a set of facts $\mathcal{F}_t$ from the raw response $r_t$. This agent operates without fine-tuning, using few-shot prompting. Let $\mathcal{E}_{\text{few}}$ be a small set of expert-curated examples of $(r, \mathcal{F})$ pairs. The agent is queried as:
+\begin{equation}
+    \mathcal{F}_t = \mathcal{A}_{\text{fact}}(r_t; \mathcal{E}_{\text{few}})
+\end{equation}
+The output $\mathcal{F}_t$ is a structured list of atomic factual statements that must be preserved verbatim or with minimal syntactic adjustment in the final response. This zero-training component ensures the framework remains lightweight and adaptable to new domains by simply updating the few-shot exemplars.
+
+\subsubsection{Agent 3: Profile-Guided Fusion Agent}
+\label{subsec:agent_fusion}
+
+The Fusion Agent $\mathcal{A}_{\text{fus}}$ integrates the raw response $r_t$, the extracted facts $\mathcal{F}_t$, the current user utterance $u_t$, and the accumulated user profile $\mathcal{P}_t$ to produce the final empathetic response $\hat{y}_t$. It is also deployed in a few-shot manner without fine-tuning.
+
+The input context $x_{\text{fus}}$ is constructed as:
+\begin{equation}
+    x_{\text{fus}} = \text{[Prompt]} \oplus \mathcal{P}_t \oplus u_t \oplus \mathcal{F}_t \oplus r_t
+\end{equation}
+The Fusion Agent generates the final response autoregressively:
+\begin{equation}
+    \hat{y}_t \sim P_{\text{fus}}(\cdot \mid x_{\text{fus}}; \mathcal{E}_{\text{few}}')
+\end{equation}
+where $\mathcal{E}_{\text{few}}'$ contains few-shot examples demonstrating how to weave empathetic language around factual content while adhering to the provided user profile. The agent is explicitly instructed to preserve all facts from $\mathcal{F}_t$ without modification and to adopt the empathy strategy, language style, and contextual awareness specified in $\mathcal{P}_t$.
+
+\subsection{Data Sources and Training Details}
+\label{subsec:data}
+
+We utilize the following datasets:
+
+\begin{itemize}
+    \item \textbf{EmpatheticDialogues}: an English multi-turn empathetic dialogue dataset. We use the training split for Agent 1 profile distillation and reserve held-out validation/test conversations for multi-turn ToM-map evaluation.
+    \item \textbf{TIDE (Trauma-Informed Dialogue for Empathy)}: an English PTSD-support dataset of two-turn trauma-informed dialogues. We use TIDE as the main English trauma-informed evaluation benchmark. If any component is trained on TIDE, we split by persona to avoid persona leakage.
+    \item \textbf{SoulChat}: a Chinese multi-turn psychological-support dialogue dataset. We use SoulChat for cross-lingual and multi-turn evaluation, with separate train, test, and human-validation splits.
+\end{itemize}
+
+For Agent 1 training, we construct profile-generation examples from EmpatheticDialogues. A teacher model produces the four target fields $\tau$, $s$, $\ell$, and $c$ for each dialogue context, and Qwen3.5-0.8B is fine-tuned with supervised learning. Agents 2 and 3 are evaluated in prompt-only and optional fine-tuned settings; the main system keeps them lightweight to preserve the plug-and-play design. Full hyperparameters are reported in Appendix~\ref{appendix:implementation}.
+
+\subsection{Evaluation Metrics}
+\label{subsec:metrics}
+
+We evaluate our framework using both automatic metrics and human judgment, consistent with established practices in empathetic dialogue research.
+
+\textbf{Automatic Metrics.} For empathy quality, we compute BERTScore and ROUGE-L between the generated response and reference empathetic responses. For factual preservation, we compute BERTScore between $\hat{y}_t$ and the raw response $r_t$, exact and fuzzy coverage of extracted factual assertions, and length ratio relative to the raw response. We also track repetition rate and empty-output rate as fluency and robustness diagnostics.
+
+\textbf{Human Evaluation.} Three independent annotators rate each response on 5-point Likert scales for empathy, factual preservation, helpfulness, and fluency. Annotators also complete pairwise Win/Loss/Tie comparisons between \textsc{EmpathyEditor} and baselines. We report mean scores with bootstrap confidence intervals and inter-annotator agreement using Fleiss' $\kappa$.
+
+\textbf{Profile and ToM Diagnostics.} For Agent 1, we additionally report XML-tag validity, section completeness, teacher-output similarity on held-out profile data, and human ratings of emotional-state accuracy and strategy usefulness.
+\section{Experimental Setup}
+\label{sec:experimental_setup}
+
+\subsection{Dataset Construction}
+
+All datasets are converted into a shared turn-level JSONL schema with fields for dataset name, split, language, conversation id, turn id, dialogue history, current user utterance, reference response, and metadata. This schema allows the same raw-response generator, editor, ablation, and evaluator to run across English and Chinese benchmarks.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{llll}
+\toprule
+\textbf{Dataset} & \textbf{Role} & \textbf{Split Rule} & \textbf{Main Claim} \\
+\midrule
+EmpatheticDialogues & Train/eval & Official split & ToM and multi-turn generality \\
+TIDE & Eval & Persona-level split & Trauma-informed English support \\
+SoulChat & Train/eval & Existing split & Chinese multi-turn support \\
+\bottomrule
+\end{tabular}
+\caption{Dataset usage in the proposed experiments. EmpatheticDialogues trains Agent 1 and supports held-out multi-turn evaluation; TIDE is the main English trauma-informed benchmark; SoulChat is the main Chinese multi-turn benchmark.}
+\label{tab:dataset_roles}
+\end{table}
+
+\subsection{Systems Compared}
+
+We compare \textsc{EmpathyEditor} against four groups of systems:
+
+\begin{itemize}
+    \item \textbf{Editor-input baseline}: Qwen2.5-7B-Instruct generates the original raw response $r_t$. This is not an empathy-specialized competitor; it is the response that the editor improves.
+    \item \textbf{Direct prompting baselines}: Qwen3.5-0.8B and Qwen2.5-7B-Instruct directly respond to the user with an empathy-oriented prompt, without profile extraction, fact extraction, or rewriting.
+    \item \textbf{In-domain fine-tuning baseline}: Qwen2.5-7B-Instruct fine-tuned on the SoulChat training split. This tests whether the plug-and-play editor can compete with directly changing the response model.
+    \item \textbf{External empathy/counseling LLMs}: runnable empathy-oriented systems such as SoulChat, EmoLLM-family models, MINT-empathy-Qwen3-4B, CounseLLM, and TIDE fine-tuned SLMs when public checkpoints are available.
+    \item \textbf{\textsc{EmpathyEditor}}: the full three-agent editor applied to the same raw response $r_t$.
+\end{itemize}
+
+\subsection{Ablations}
+
+We evaluate the following variants:
+
+\begin{itemize}
+    \item \textbf{No profile}: remove Agent 1 and edit using only raw response and extracted facts.
+    \item \textbf{No fact agent}: remove Agent 2 and edit using only raw response and profile.
+    \item \textbf{No ToM map}: Agent 1 sees only the current turn, not the accumulated profile.
+    \item \textbf{Zero-shot Agent 1}: replace the fine-tuned profile model with the base Qwen3.5-0.8B model.
+    \item \textbf{Fusion only}: rewrite the raw response without profile or extracted facts.
+\end{itemize}
+
+\section{Evaluation Protocol}
+\label{sec:evaluation_protocol}
+
+\subsection{Agent 1 Profile Evaluation}
+
+We first evaluate whether Agent 1 can produce usable profile outputs. Automatic checks include XML-tag validity, section completeness, and semantic similarity to teacher profiles on held-out EmpatheticDialogues examples. Human raters evaluate emotional-state accuracy, strategy usefulness, and whether the profile captures durable context without over-interpreting the user.
+
+\subsection{Full-System Evaluation}
+
+For each dataset split, we generate a fixed raw response from the backbone and apply all editor variants to the same raw response. This controls for response-generator variance and makes factual preservation measurable. TIDE and SoulChat are used for the main full-system evaluation; EmpatheticDialogues is used to evaluate multi-turn consistency and ToM-map contribution.
+
+\subsection{Human Evaluation}
+
+Human evaluation uses blinded, randomized pairwise comparisons. Annotators see the dialogue history, the raw response, and two anonymized candidate responses. They rate each candidate on empathy, factual preservation, helpfulness, and fluency using 5-point Likert scales, then choose an overall preference or tie. We report mean scores with 95\% bootstrap confidence intervals and Fleiss' $\kappa$ for agreement.
+
+\section{Results}
+\label{sec:results}
+
+The experiments are designed to answer three questions: (1) whether \textsc{EmpathyEditor} improves perceived empathy over the raw response, (2) whether it preserves factual content better than unconstrained rewriting, and (3) whether the ToM map improves multi-turn consistency. Tables~\ref{tab:main_results_plan} and~\ref{tab:ablation_plan} define the result structure to be filled after running the scripts.
+
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{llcccccc}
+\toprule
+\textbf{Dataset} & \textbf{System} & \textbf{BERTScore Ref} & \textbf{ROUGE-L} & \textbf{BERTScore Raw} & \textbf{Fact Cov.} & \textbf{H-Emp} & \textbf{H-Fact} \\
+\midrule
+TIDE & Raw backbone & -- & -- & -- & -- & -- & -- \\
+TIDE & Direct prompted LLM & -- & -- & -- & -- & -- & -- \\
+TIDE & \textsc{EmpathyEditor} & -- & -- & -- & -- & -- & -- \\
+\midrule
+SoulChat & Raw backbone & -- & -- & -- & -- & -- & -- \\
+SoulChat & SoulChat SFT & -- & -- & -- & -- & -- & -- \\
+SoulChat & \textsc{EmpathyEditor} & -- & -- & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\caption{Planned main results table. ``BERTScore Ref'' and ROUGE-L compare with reference empathetic responses; ``BERTScore Raw'' and Fact Cov. measure preservation relative to the raw response and extracted facts.}
+\label{tab:main_results_plan}
+\end{table*}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Variant} & \textbf{$\Delta$ Empathy} & \textbf{$\Delta$ Fact Cov.} & \textbf{$\Delta$ Fluency} \\
+\midrule
+Full system & 0.00 & 0.00 & 0.00 \\
+No profile & -- & -- & -- \\
+No fact agent & -- & -- & -- \\
+No ToM map & -- & -- & -- \\
+Zero-shot Agent 1 & -- & -- & -- \\
+Fusion only & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\caption{Planned ablation table. Deltas are computed relative to the full \textsc{EmpathyEditor} system.}
+\label{tab:ablation_plan}
+\end{table}
+
+\section{Limitations}
+
+The framework is an empathy editor, not a therapist or diagnostic system. It can improve language quality but cannot guarantee clinical correctness beyond the information supplied by the raw response. TIDE is synthetic and two-turn, so it is useful for trauma-informed response quality but limited for long-horizon counseling claims. SoulChat provides large-scale Chinese multi-turn data, but cultural and linguistic conclusions should be limited to the evaluated split. Finally, automatic empathy metrics are imperfect; human evaluation remains necessary.
+
+\section{Ethical Considerations}
+
+The system is intended to support research on empathetic language generation, not to replace professional mental-health care. Human evaluation should avoid exposing annotators to unnecessary distress, and trauma-related examples should be reviewed with appropriate content warnings. The editor is explicitly constrained not to introduce diagnoses, promises, or unsupported advice. Dataset licenses and access conditions must be respected, especially for gated resources such as TIDE.
+
+\section{Conclusion}
+
+We presented \textsc{EmpathyEditor}, a plug-and-play multi-agent framework for editing existing dialogue-system responses to be more empathetic while preserving factual content. The proposed evaluation isolates the editing contribution from raw response generation, tests English trauma-informed and Chinese multi-turn settings, and measures both empathy gains and factual preservation through automatic and human evaluation.
+
+% Bibliography entries for the entire Anthology, followed by custom entries
+%\bibliography{anthology,custom}
+% Custom bibliography entries only
+\bibliography{custom}
+
+\appendix
+
+\section{Implementation Details}
+\label{appendix:implementation}
+
+The reproducible experiment scripts are provided in \texttt{code/experiment\_pipeline/}. The pipeline prepares canonical datasets, builds Agent 1 distillation data, fine-tunes Agent 1, fine-tunes direct response baselines, generates raw responses with vLLM, runs the full agent system and ablations, computes automatic metrics, builds blinded human-evaluation sheets, analyzes annotations, and exports LaTeX-ready tables.
+
+\section{Prompts}
+\label{appendix:prompts}
+
+\begin{promptbox}{Agent 1 Profile Prompt}
+\small
+\systemprompt{You are an expert in clinical psychology and conversation analysis. Analyze the dialogue and output exactly four sections: \texttt{<ToM>}, \texttt{<Strategy>}, \texttt{<Style>}, and \texttt{<Context>}.}
+\userprompt{Conversation history: \{\texttt{history}\}. Previous running profile: \{\texttt{profile}\}. Generate the updated four-section profile.}
+\end{promptbox}
+
+\begin{promptbox}{Agent 2 Fact Extraction Prompt}
+\small
+\systemprompt{Extract factual assertions from the raw response that must be preserved. Output a JSON array of strings and nothing else.}
+\userprompt{RAW RESPONSE: \{\texttt{raw\_response}\}}
+\end{promptbox}
+
+\begin{promptbox}{Agent 3 Fusion Prompt}
+\small
+\systemprompt{Rewrite the raw response to be more empathetic and personalized while preserving all extracted facts. Do not add unsupported claims, diagnoses, promises, or safety instructions. Keep the same language as the user.}
+\userprompt{Conversation history: \{\texttt{history}\}. Latest user utterance: \{\texttt{user}\}. Raw response: \{\texttt{raw\_response}\}. User profile: \{\texttt{profile}\}. Extracted facts: \{\texttt{facts}\}.}
+\end{promptbox}
+
+\end{document}
